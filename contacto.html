@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contacto</title>
+<meta name="description" content="Contacto del repositorio de papers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body data-page="contacto">
+<header class="nav" id="nav"></header>
+
+<main>
+  <section class="wrap section">
+    <div class="contact">
+      <!-- ======= EDITA AQUÍ EL TÍTULO ======= -->
+      <h1>Formulario de contacto</h1>
+      <!-- ==================================== -->
+      <form class="card" id="form">
+        <label class="field">Nombre<input name="nombre" required autocomplete="name"></label>
+        <label class="field">Email<input name="email" type="email" required autocomplete="email"></label>
+        <label class="field">Mensaje<textarea name="mensaje" required></textarea></label>
+        <div><button class="btn primary big" type="submit">Enviar mensaje</button></div>
+        <p class="note" id="note"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"></div></footer>
+
+<script src="config.js"></script>
+<script>
+/* Si hay código de Formspree, el formulario llega directo a tu correo.
+   Si no, abre el programa de correo de quien escribe con el mensaje ya rellenado. */
+document.getElementById("form").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const f = new FormData(e.target), note = document.getElementById("note");
+  if(CONFIG.formspree){
+    try{
+      const r = await fetch("https://formspree.io/f/"+CONFIG.formspree,{method:"POST",body:f,headers:{Accept:"application/json"}});
+      if(!r.ok) throw 0;
+      e.target.reset(); note.textContent = "¡Gracias! Tu mensaje se ha enviado.";
+    }catch{ note.textContent = "No se pudo enviar. Escríbeme directamente a " + CONFIG.email; }
+  }else{
+    const body = `${f.get("mensaje")}\n\n— ${f.get("nombre")} (${f.get("email")})`;
+    location.href = `mailto:${CONFIG.email}?subject=${encodeURIComponent("Mensaje desde "+CONFIG.nombreWeb)}&body=${encodeURIComponent(body)}`;
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title></title>
+<meta name="description" content="Repositorio de papers con búsqueda por temática y año.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body data-page="inicio">
+<header class="nav" id="nav"></header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <!-- ======= EDITA AQUÍ LOS TEXTOS DE PORTADA ======= -->
+      <p class="eyebrow">Bienvenida</p>
+      <h1>Investigación abierta, en un solo lugar</h1>
+      <p class="lede">Este espacio reúne artículos y trabajos de investigación sobre economía, derecho, finanzas y sociedad. Todos pueden consultarse y descargarse libremente.</p>
+      <p class="cta"><a class="btn primary big" href="papers.html">Explorar los papers →</a></p>
+      <!-- ================================================ -->
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <!-- ======= EDITA AQUÍ EL BLOQUE "SOBRE EL PROYECTO" ======= -->
+    <h2>Sobre el proyecto</h2>
+    <p class="lede" style="margin-bottom:24px">Escribe aquí dos o tres frases sobre ti o sobre el repositorio: quién lo mantiene, qué tipo de trabajos publica y con qué objetivo.</p>
+    <!-- ======================================================== -->
+
+    <div class="grid3" id="stats">
+      <div class="card"><p class="stat" id="s-papers">–</p><p>papers publicados</p></div>
+      <div class="card"><p class="stat" id="s-temas">–</p><p>temáticas</p></div>
+      <div class="card"><p class="stat" id="s-anios">–</p><p>periodo cubierto</p></div>
+    </div>
+
+    <h2 style="margin-top:48px">Últimos papers</h2>
+    <div class="latest" id="latest"></div>
+    <p class="cta"><a class="btn" href="papers.html">Ver todos los papers</a></p>
+  </section>
+</main>
+
+<footer><div class="wrap"></div></footer>
+
+<script src="config.js"></script>
+<script>
+loadPapers().then(papers=>{
+  const years = papers.map(p=>+p.anio).filter(Boolean);
+  document.getElementById("s-papers").textContent = papers.length;
+  document.getElementById("s-temas").textContent = new Set(papers.map(p=>p.tematica).filter(Boolean)).size;
+  document.getElementById("s-anios").textContent = years.length ? (Math.min(...years)===Math.max(...years) ? Math.min(...years) : `${Math.min(...years)}–${Math.max(...years)}`) : "–";
+  const latest = [...papers].sort((a,b)=>b.anio-a.anio).slice(0,3);
+  document.getElementById("latest").innerHTML = latest.map(p=>
+    `<a href="${esc(pdfHref(p))}" target="_blank" rel="noopener"><span class="t">${esc(p.titulo)}</span><span class="m">${esc(p.tematica)} · ${esc(p.anio)}</span></a>`).join("");
+}).catch(()=>{ document.getElementById("latest").innerHTML = LOAD_ERROR; });
+</script>
+</body>
+</html>

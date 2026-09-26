@@ -1,0 +1,21 @@
+REPOSITORIO DE PAPERS: guía rápida
+
+ARCHIVOS
+- index.html     -> pestaña Inicio
+- papers.html    -> pestaña Papers
+- contacto.html  -> pestaña Contacto
+- config.js      -> nombre de la web y email de contacto
+- estilos.css    -> colores y tipografías (bloque del principio)
+- papers.csv     -> lista de papers
+- pdfs/          -> los archivos PDF
+
+AÑADIR UN PAPER
+1. Sube el PDF a la carpeta "pdfs" (sin espacios ni tildes en el nombre, p. ej. mi-paper-2025.pdf).
+2. Abre papers.csv, pulsa el lápiz y añade una línea al final:
+   "Título del paper","Autor Uno; Autora Dos",2025,Economía,"Resumen breve",mi-paper-2025.pdf
+3. Commit changes. La web se actualiza en 1-2 minutos.
+Las temáticas, los años, las cifras y los "Últimos papers" de Inicio se generan solos a partir de papers.csv.
+Escribe cada temática siempre igual (Economía y economia contarían como dos distintas).
+
+CAMBIAR TEXTOS: busca "EDITA AQUÍ" en cada archivo .html.
+CAMBIAR COLORES: edita el bloque del principio de estilos.css.

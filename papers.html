@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Papers</title>
+<meta name="description" content="Busca y descarga papers por temática y año.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body data-page="papers">
+<header class="nav" id="nav"></header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <!-- ======= EDITA AQUÍ LOS TEXTOS DE CABECERA ======= -->
+      <p class="eyebrow">Repositorio</p>
+      <h1>Papers</h1>
+      <p class="lede">Filtra por temática o año, busca por título o autor y descarga el PDF.</p>
+      <!-- ================================================= -->
+    </div>
+  </section>
+
+  <div class="controls">
+    <div class="wrap">
+      <div class="row">
+        <label class="filter search-f">Buscar
+          <span class="search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="q" type="search" placeholder="Título, autor o palabra clave…">
+          </span>
+        </label>
+        <label class="filter">Temática<select id="topic"><option value="">Todas</option></select></label>
+        <label class="filter">Año<select id="year"><option value="">Todos</option></select></label>
+        <label class="filter">Ordenar<select id="sort">
+          <option value="new">Más recientes</option>
+          <option value="old">Más antiguos</option>
+          <option value="az">Título (A–Z)</option>
+        </select></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap results">
+    <div class="meta"><span id="count"></span><button class="reset" id="reset" hidden>Quitar filtros</button></div>
+    <div class="list" id="list"></div>
+  </div>
+</main>
+
+<footer><div class="wrap"></div></footer>
+
+<script src="config.js"></script>
+<script>
+let papers = [];
+const state = { q:"", topic:"", year:"", sort:"new" };
+const $ = id => document.getElementById(id);
+
+function buildFilters(){
+  const counts = {};
+  papers.forEach(p => { if(p.tematica) counts[p.tematica]=(counts[p.tematica]||0)+1; });
+  const topics = Object.keys(counts).sort((a,b)=>a.localeCompare(b,"es"));
+  $("topic").innerHTML = `<option value="">Todas</option>` +
+    topics.map(t=>`<option value="${esc(t)}" ${state.topic===t?"selected":""}>${esc(t)} (${counts[t]})</option>`).join("");
+  const years = [...new Set(papers.map(p=>p.anio).filter(Boolean))].sort((a,b)=>b-a);
+  $("year").innerHTML = `<option value="">Todos</option>` + years.map(y=>`<option ${y===state.year?"selected":""}>${esc(y)}</option>`).join("");
+  $("q").value = state.q; $("sort").value = state.sort;
+}
+
+function highlight(text){
+  const safe = esc(text);
+  const words = state.q.trim().split(/\s+/).filter(w=>w.length>1).map(w=>esc(w).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"));
+  if(!words.length) return safe;
+  return safe.replace(new RegExp("("+words.join("|")+")","gi"),"<mark>$1</mark>");
+}
+
+function render(){
+  const terms = norm(state.q).split(/\s+/).filter(Boolean);
+  let out = papers.filter(p =>
+    (!state.topic || p.tematica===state.topic) &&
+    (!state.year  || p.anio===state.year) &&
+    terms.every(t => norm(p.titulo+" "+p.autores+" "+p.resumen+" "+p.tematica).includes(t))
+  );
+  out.sort((a,b)=> state.sort==="az" ? a.titulo.localeCompare(b.titulo,"es")
+                 : state.sort==="old" ? (a.anio-b.anio) : (b.anio-a.anio));
+
+  $("count").textContent = out.length===1 ? "1 paper" : `${out.length} papers`;
+  $("reset").hidden = !(state.q||state.topic||state.year);
+
+  $("list").innerHTML = out.length ? out.map(p=>{
+    const href = pdfHref(p);
+    return `<article>
+      <div class="tags">${p.tematica?`<span class="tag">${esc(p.tematica)}</span>`:""}<span class="year">${esc(p.anio)}</span></div>
+      <h2>${highlight(p.titulo)}</h2>
+      <p class="authors">${highlight(p.autores)}</p>
+      ${p.resumen?`<p class="abstract">${highlight(p.resumen)}</p>`:""}
+      ${p.archivo?`<div class="actions">
+        <a class="btn primary" href="${esc(href)}" download>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 5-5m-5 5-5-5M4 21h16"/></svg>Descargar PDF</a>
+        <a class="btn" href="${esc(href)}" target="_blank" rel="noopener">Ver online</a>
+      </div>`:""}
+    </article>`;
+  }).join("") : `<div class="empty">No hay papers que coincidan con estos filtros.</div>`;
+  writeURL();
+}
+
+/* Guarda los filtros en la dirección para poder compartir un enlace filtrado */
+function writeURL(){
+  const u = new URLSearchParams();
+  if(state.q) u.set("q",state.q); if(state.topic) u.set("tema",state.topic);
+  if(state.year) u.set("anio",state.year); if(state.sort!=="new") u.set("orden",state.sort);
+  history.replaceState(null,"",location.pathname+(u.toString()?"?"+u:""));
+}
+function readURL(){
+  const u = new URLSearchParams(location.search);
+  state.q=u.get("q")||""; state.topic=u.get("tema")||""; state.year=u.get("anio")||""; state.sort=u.get("orden")||"new";
+}
+
+$("q").addEventListener("input", e=>{ state.q=e.target.value; render(); });
+$("year").addEventListener("change", e=>{ state.year=e.target.value; render(); });
+$("sort").addEventListener("change", e=>{ state.sort=e.target.value; render(); });
+$("topic").addEventListener("change", e=>{ state.topic=e.target.value; render(); });
+$("reset").addEventListener("click", ()=>{ state.q=state.topic=state.year=""; $("q").value=""; $("topic").value=""; $("year").value=""; render(); });
+
+loadPapers().then(p=>{ papers=p; readURL(); buildFilters(); render(); })
+            .catch(()=>{ $("list").innerHTML = LOAD_ERROR; });
+</script>
+</body>
+</html>
