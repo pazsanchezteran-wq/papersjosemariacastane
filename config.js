@@ -3,13 +3,13 @@
    ===================================================================== */
 const CONFIG = {
   nombreWeb: "Repositorio de Papers",           // aparece en el menú, la pestaña del navegador y el pie
-  email:     "tu-email@ejemplo.com",            // correo al que llegan los mensajes del formulario de Contacto
+  email:     "j.m.castane@capitalalianza.com",            // correo al que llegan los mensajes del formulario de Contacto
   formspree: ""   // opcional: código de Formspree (p. ej. "xyzabcd") para recibir el formulario sin abrir el correo
 };
 /* ===================================================================== */
 
 /* ---- A partir de aquí no hace falta tocar nada ---- */
-const PDF_FOLDER = "pdfs/";
+const PDF_FOLDER = "";
 const DATA_FILE  = "papers.csv";
 
 const norm = s => (s||"").toString().normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
