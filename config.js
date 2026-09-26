@@ -2,7 +2,7 @@
    DATOS GENERALES DE LA WEB: edita solo lo que está entre comillas.
    ===================================================================== */
 const CONFIG = {
-  nombreWeb: "Repositorio de Papers",           // aparece en el menú, la pestaña del navegador y el pie
+  nombreWeb: "Repositorio de Papers de Jose María Castañé",           // aparece en el menú, la pestaña del navegador y el pie
   email:     "j.m.castane@capitalalianza.com",            // correo al que llegan los mensajes del formulario de Contacto
   formspree: ""   // opcional: código de Formspree (p. ej. "xyzabcd") para recibir el formulario sin abrir el correo
 };
